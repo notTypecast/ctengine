@@ -1,0 +1,2 @@
+build:
+	gcc arrow_movement.c ../src/keylistener.c ../src/drawer.c ../src/display.c ../src/keymap.c ../src/queue.c -o arrow_movement -Wall -lm

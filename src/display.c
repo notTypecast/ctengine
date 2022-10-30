@@ -105,6 +105,6 @@ void display_set(Display *display, int row, int column, const char *c) {
  *  of '\0' characters at the end if necessary, thus avoiding unnecessary checks
  * To be used by display_clear
  */
-void _display_set_exact(Display *display, int row, int column, const char *c) {
+void display_set_exact(Display *display, int row, int column, const char *c) {
     memcpy(&display->_display_array[CELLBYTES*(row*display->_columns+column)], c, CELLBYTES*sizeof(char));
 }

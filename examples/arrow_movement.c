@@ -1,4 +1,6 @@
 #include "../header/ctengine.h"
+#include <stdio.h>
+#include <unistd.h>
 
 void* gameloop(void *args) {
     // get Drawer and Queue
@@ -13,7 +15,7 @@ void* gameloop(void *args) {
     int player_speed[2] = {0, 0};
 
     // UTF-8 character representing the player
-    const char square = 'x';
+    const char *square = "■";
 
     int running = 1;
 
@@ -47,6 +49,11 @@ void* gameloop(void *args) {
                 case 4:
                     player_speed[0] = 0;
                     player_speed[1] = 1;
+                    break;
+                // 5 means SPACEBAR
+                case 5:
+                    player_speed[0] = 0;
+                    player_speed[1] = 0;
                     break;
             }
 
@@ -86,7 +93,7 @@ int main(void) {
     keylistener_add_key(listener, CONST.K_DARROW, 2);
     keylistener_add_key(listener, CONST.K_LARROW, 3);
     keylistener_add_key(listener, CONST.K_RARROW, 4);
-
+    keylistener_add_key(listener, CONST.K_SPACEBAR, 5);
     drawer_set_fps(drawer, 30);
 
     drawer_start_thread(drawer, queue, gameloop);

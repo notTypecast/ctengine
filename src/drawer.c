@@ -39,26 +39,27 @@ void delete_drawer(Drawer *drawer) {
  * Waits the preset amount of time so the framerate can be equal to the preset
  */
 void drawer_draw_display(Drawer *drawer) {
-    int *size = display_get_size(drawer->display);
-
     time_t sec;
     long msec;
     get_timestamp(&sec, &msec);
-    /*printf("%li %d", sec - drawer->ld_sec, drawer->update_delay_s);
-    fflush(stdout);
-    sleep(2);*/
+
     while (sec - drawer->ld_sec <= drawer->update_delay_s && msec - drawer->ld_msec <= drawer->update_delay_ms) {
         usleep(10000);
         get_timestamp(&sec, &msec);
     }
 
-
-    clear_screen();
-    write(STDOUT_FILENO, drawer->display->_display_array, size[0]*size[1]);
+    ulong total_to_write = drawer->display->_rows * drawer->display->_columns * CELLBYTES * sizeof(char);
+    ssize_t written = 0;
+    ssize_t count;
+    do {
+        count = write(STDOUT_FILENO, &drawer->display->_display_array[written], total_to_write - written);
+        if (count != -1) {
+            written += count;
+        }
+    } while (written != total_to_write);
     fflush(stdout);
 
     get_timestamp(&drawer->ld_sec, &drawer->ld_msec);
-    free(size);
 }
 
 /* Determines the framerate the game will run at
@@ -105,5 +106,6 @@ Queue* args_get_queue(void *args) {
 /* Clears the terminal screen
  */
 void clear_screen() {
-    write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
+    system("clear");
+    //write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 }

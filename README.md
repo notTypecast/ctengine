@@ -19,13 +19,18 @@ The game loop function is the main function run by the drawer thread. Its purpos
 
 The function's return type should be `void*`. It should only take one argument of type `void*`. At the beginning of the function, by using `args_get_drawer` and `args_get_queue` and passing to them the function's argument, the `Drawer` and `Queue` can be saved.
 
-First, the function will require the display size. To get it, the function `display_get_size` can be called, passing `drawer->display` as an argument (where `drawer` refers to the Drawer). That function returns an `int *` which the game loop function should make sure to free once it is finished.
+First, the function will require the display size. To get it, the function `display_get_size` can be called, passing `drawer->display` as an argument (where `drawer` refers to the Drawer). That function returns an `int *` which the game loop function should make sure to free once finished.
 
 Once inside the actual loop, the function should call `queue_empty` on the queue to check for new key press events. If there are any, `queue_get` should be used to read their corresponding values and handle them accordingly. The game logic should follow.
 
-The final part of the loop should handle drawing to the screen. At first, `display_clear` should be called on the Display. After that, the function `display_set` can be used to set a character at a position. For instance, `display_set(drawer->display, 0, 0, 'x')` will set the first character of the first row to "x". Finally, `drawer_draw_display` should be called, passing the Drawer as an argument.
+The final part of the loop should handle drawing to the screen. At first, `display_clear` should be called on the Display. After that, the function `display_set` can be used to set a character at a position. For instance, `display_set(drawer->display, 0, 0, "x")` will set the first character of the first row to "x". Finally, `drawer_draw_display` should be called, passing the Drawer as an argument.
 
 After the loop, the function should return 0.
+
+#### Drawing to the Display
+As shown above, using the Drawer's internal Display, specified positions on the screen can be changed to display any character. The maximum character size chosen is `CELLBYTES` (default 4), enough to fit any UTF-8 character. It must be noted, however, that this allows the user to pass multiple characters to one cell (for instance, `display_set(drawer->display, 0, 0, "abcd")`. This must never be done, as it will prevent the Display from displaying properly on the terminal screen. The additional bytes are reserved for characters that, visually, require only a single cell, but which require more than a single byte to be represented (for example, the ■ (square) character).
+
+If a character is exactly `CELLBYTES` bytes long, the function `display_set_exact` can be used in place of `display_set`. The former is more efficient, seeing as it performs no additional checks for character length. It can even be used with characters that are less than `CELLBYTES` bytes, as long as those characters are part of a `char` array that is padded with as many `\0` characters as required to be `CELLBYTES` in size.
 
 ### Documentation
 
@@ -56,8 +61,9 @@ function|arguments|returns|description
 `display_update_size`|`Display*`||Updates the Display size to the current terminal size (should not currently be used)
 `display_get_size`|`Display*`|`int*`|Returns a dynamically allocated `int[2]` containing the row and column numbers respectively, should be freed when unneeded
 `display_clear`|`Display*`||Clears the Display, setting a whitespace character everywhere
-`display_get`|`Display*`, `int`, `int`|`char`|Gets the value at the specified row and column of the given Display
-`display_set`|`Display*`, `int`, `int`, `char`||Sets the value at the specified row and column of the given Display to the given character
+`display_get`|`Display*`, `int`, `int`|`char*`|Gets the value at the specified row and column of the given Display
+`display_set`|`Display*`, `int`, `int`, `char*`||Sets the value at the specified row and column of the given Display to the given character
+`display_set_exact`|`Display*`, `int`, `int`, `char*`||Same as `display_set`, with the difference that the `char*` passed as an argument must be guaranteed to be exactly `CELLBYTES` in size (default 4); if it is smaller, it must be padded with enough `'\0'` characters at the end to match the required size
 
 #### Queue
 function|arguments|returns|description
@@ -147,7 +153,7 @@ p|`K_p`
 ]|`K_CBRACKET`
 }|`K_CBRACE`
 \||`K_BAR`
-\\|`K_BACKSLASH`
+\ |`K_BACKSLASH`
 A|`K_A`
 a|`K_a`
 S|`K_S`

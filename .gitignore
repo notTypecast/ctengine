@@ -51,5 +51,10 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# Executables
+arrow_movement
+
 # Other
 .idea
+CMakeLists.txt
+cmake-build-debug/

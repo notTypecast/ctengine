@@ -27,6 +27,11 @@ The final part of the loop should handle drawing to the screen. At first, `displ
 
 After the loop, the function should return 0.
 
+#### Game logic & exiting the game
+Besides the player exiting the game using a combination of keys, such as CTRL+c, or a key set to produce the value 0 in the queue, the game can also be ended by the game's logic. This is desirable in cases where the player has won or lost. 
+
+In such cases, the game loop function is responsible for exiting the game. This can be achieved by setting the `finished` flag of the Queue to `1` (`queue->finished = 1`) and, subsequently, exiting the game loop function. Optionally, the function `drawer_set_exit_msg` can also be used to set the message to be displayed after the game ends.
+
 #### Drawing to the Display
 As shown above, using the Drawer's internal Display, specified positions on the screen can be changed to display any character. The maximum character size chosen is `CELLBYTES` (default 4), enough to fit any UTF-8 character. It must be noted, however, that this allows the user to pass multiple characters to one cell (for instance, `display_set(drawer->display, 0, 0, "abcd")`. This must never be done, as it will prevent the Display from displaying properly on the terminal screen. The additional bytes are reserved for characters that, visually, require only a single cell, but which require more than a single byte to be represented (for example, the ■ (square) character).
 
@@ -52,6 +57,8 @@ function|arguments|returns|description
 `drawer_draw_display`|`Drawer*`||Blocks for the required amount (based on FPS value) and draws the values contained in the drawer's display to the screen
 `drawer_set_fps`|`Drawer*`,`int`|`int`|Sets the FPS value for the given Drawer, returns 0 if successful, else 1
 `drawer_start_thread`|`Drawer*`, `Queue*`,`void*(*f)(void*)`||Starts the drawer thread, which runs the function `f`
+`drawer_set_exit_msg`|`Drawer*`,`const char*`||Sets the exit message that should be displayed after the game ends; by default, no message is displayed
+`drawer_clear_exit_msg`|`Drawer*`||Deletes and clears a previously set exit message, if one exists
 
 #### Display
 function|arguments|returns|description

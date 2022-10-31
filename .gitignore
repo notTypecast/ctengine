@@ -53,6 +53,7 @@ dkms.conf
 
 # Executables
 arrow_movement
+avoid_collisions
 
 # Other
 .idea

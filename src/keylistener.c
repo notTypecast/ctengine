@@ -70,6 +70,11 @@ void keylistener_handle_in(KeyListener *key_listener) {
         usleep(10000);
         int ecode = (int)read(key_listener->fd, c, KEYSIZE);
 
+        if (key_listener->eQueue->finished) {
+            keylistener_exit(key_listener);
+            return;
+        }
+
         if (ecode != -1) {
             //printf("0: [%d], 1: [%d], 2: [%d], 3: [%d], 4: [%d] %d\n", c[0], c[1], c[2], c[3], c[4], ecode);
             if (c[0] == 3) {
@@ -101,7 +106,9 @@ void keylistener_handle_in(KeyListener *key_listener) {
     }
 }
 
-/* Used by keylistener_handle_in to exit if an exit signal is read
+/* Function used to stop keylistener
+ * Can be used by game logic when the game must be quit
+ * Used by keylistener_handle_in to exit if an exit signal is read
  */
 void keylistener_exit(KeyListener *key_listener) {
     Queue *queue = key_listener->eQueue;

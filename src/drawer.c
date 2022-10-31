@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "../header/drawer.h"
 
@@ -17,8 +18,8 @@ Drawer* init_drawer() {
     new->update_delay_s = 0;
     new->update_delay_ms = 0;
     new->display = init_display();
-
     new->thread_id = NULL;
+    new->exit_msg = NULL;
 
     return new;
 }
@@ -30,8 +31,12 @@ void delete_drawer(Drawer *drawer) {
     if (drawer->thread_id != NULL) {
         free(drawer->thread_id);
     }
-    free(drawer);
     clear_screen();
+    if (drawer->exit_msg != NULL) {
+        printf("%s\n", drawer->exit_msg);
+        free(drawer->exit_msg);
+    }
+    free(drawer);
 }
 
 /* Draws the display on the screen
@@ -85,6 +90,26 @@ void drawer_start_thread(Drawer *drawer, Queue *queue, void *(*f)(void *args)) {
 
     drawer->thread_id = malloc(sizeof(pthread_t));
     pthread_create(drawer->thread_id, NULL, f, &args);
+}
+
+/* Used to set the message to be displayed after the game quits
+ */
+void drawer_set_exit_msg(Drawer *drawer, const char* msg) {
+    if (drawer->exit_msg == NULL) {
+        free(drawer->exit_msg);
+    }
+    ulong len = strlen(msg)+1;
+    drawer->exit_msg = malloc(len*sizeof(char));
+    memcpy(drawer->exit_msg, msg, len*sizeof(char));
+}
+
+/* Used to delete and clear a previously set exit message
+ */
+void drawer_clear_exit_msg(Drawer *drawer) {
+    if (drawer->exit_msg != NULL) {
+        free(drawer->exit_msg);
+        drawer->exit_msg = NULL;
+    }
 }
 
 // Utility functions

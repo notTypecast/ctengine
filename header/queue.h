@@ -18,6 +18,7 @@ typedef struct QueueItem {
  * time_t lpt_sec: UNIX timestamp of last put operation called on the queue, in seconds
  * long lpt_ms: the millisecond part of the lpt_sec timestamp
  * pthread_mutex_t mutex: the mutex used to ensure mutual exclusion when queue is used with multiple threads
+ * int finished: flag indicating whether execution is finished; used by reader thread to communicate event to writer thread
  */
 typedef struct {
     QueueItem *head;
@@ -25,6 +26,7 @@ typedef struct {
     time_t lpt_sec;
     long lpt_ms;
     pthread_mutex_t mutex;
+    int finished;
 } Queue;
 
 // Queue operations

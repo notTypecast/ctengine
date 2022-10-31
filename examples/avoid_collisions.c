@@ -1,4 +1,7 @@
 #include "../header/ctengine.h"
+#include <time.h>
+#include <stdlib.h>
+#define ENEMIES 5
 
 void* gameloop(void *args) {
     // get Drawer and Queue
@@ -15,6 +18,22 @@ void* gameloop(void *args) {
     // UTF-8 character representing the player
     const char *square = "■";
 
+    // initialize enemies
+    int enemy_positions[ENEMIES][2];
+    int enemy_speeds[ENEMIES][2];
+
+    // randomly decide initial enemy values
+    for (int i = 0; i < ENEMIES; ++i) {
+        enemy_positions[i][0] = rand() % size[0];
+        enemy_positions[i][1] = rand() % size[1];
+
+        enemy_speeds[i][0] = rand() % 2;
+        enemy_speeds[i][1] = rand() % 2;
+    }
+
+    // UTF-8 character representing enemy
+    const char *enemy = "☀";
+
     int running = 1;
 
     // main game loop
@@ -28,27 +47,27 @@ void* gameloop(void *args) {
                 case 0:
                     running = 0;
                     break;
-                // 1 means UP ARROW
+                    // 1 means UP ARROW
                 case 1:
                     player_speed[0] = -1;
                     player_speed[1] = 0;
                     break;
-                // 2 means DOWN ARROW
+                    // 2 means DOWN ARROW
                 case 2:
                     player_speed[0] = 1;
                     player_speed[1] = 0;
                     break;
-                // 3 means LEFT ARROW
+                    // 3 means LEFT ARROW
                 case 3:
                     player_speed[0] = 0;
                     player_speed[1] = -1;
                     break;
-                // 4 means RIGHT ARROW
+                    // 4 means RIGHT ARROW
                 case 4:
                     player_speed[0] = 0;
                     player_speed[1] = 1;
                     break;
-                // 5 means SPACEBAR
+                    // 5 means SPACEBAR
                 case 5:
                     player_speed[0] = 0;
                     player_speed[1] = 0;
@@ -62,16 +81,30 @@ void* gameloop(void *args) {
 
         }
 
+        display_clear(drawer->display);
+
         // game logic
         player_pos[0] += player_speed[0];
         player_pos[1] += player_speed[1];
 
-        // clear screen
-        display_clear(drawer->display);
-
         // draw player
         display_set(drawer->display, (player_pos[0] % size[0] + size[0]) % size[0],
                     (player_pos[1] % size[1] + size[1]) % size[1], square);
+
+        // draw enemies
+        for (int i = 0; i < ENEMIES; ++i) {
+            if (player_pos[0] == enemy_positions[i][0] && player_pos[1] == enemy_positions[i][1]) {
+                queue->finished = 1;
+                drawer_set_exit_msg(drawer, "You lose!");
+                return 0;
+            }
+
+            enemy_positions[i][0] += enemy_speeds[i][0];
+            enemy_positions[i][1] += enemy_speeds[i][1];
+
+            display_set(drawer->display, (enemy_positions[i][0] % size[0] + size[0]) % size[0],
+                        (enemy_positions[i][1] % size[1] + size[1]) % size[1], enemy);
+        }
 
         drawer_draw_display(drawer);
     }
@@ -82,6 +115,8 @@ void* gameloop(void *args) {
 }
 
 int main(void) {
+    srand(time(NULL));
+
     Queue *queue = init_queue();
     Drawer *drawer = init_drawer();
     KeyListener *listener = init_keylistener(queue, drawer);

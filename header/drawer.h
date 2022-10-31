@@ -19,6 +19,7 @@ extern const char *CLEAR_SCREEN_ANSI;
  *  pointer is changed to point to a pointer, which points to the pthread_t value of the thread; this allows the
  *  KeyListener to know if the thread was started and free the pointer if necessary on exit, as well as warn in case the
  *  KeyListener was started without the drawer thread
+ * char *exit_msg: message to be displayed on exit; set by drawer_set_exit_msg
  */
 typedef struct {
     time_t ld_sec;
@@ -27,6 +28,7 @@ typedef struct {
     long update_delay_ms;
     Display *display;
     pthread_t *thread_id;
+    char *exit_msg;
 } Drawer;
 
 /* Defines a GameloopFuncArgs struct, used to pass the required arguments to the game loop function
@@ -44,6 +46,8 @@ void delete_drawer(Drawer *drawer);
 void drawer_draw_display(Drawer *drawer);
 int drawer_set_fps(Drawer *drawer, int val);
 void drawer_start_thread(Drawer *drawer, Queue *queue, void *(*f)(void *args));
+void drawer_set_exit_msg(Drawer *drawer, const char* msg);
+void drawer_clear_exit_msg(Drawer *drawer);
 
 // Utility functions
 Drawer* args_get_drawer(void *args);

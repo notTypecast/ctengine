@@ -18,6 +18,7 @@ Queue* init_queue() {
         printf("Could not initialize queue mutex");
         return NULL;
     }
+    new->finished = 0;
     return new;
 }
 
